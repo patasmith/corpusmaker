@@ -12,8 +12,8 @@ class RawText(SQLModel, table=True):
     id: Optional[int] = Field(
         default=None, primary_key=True, description="The ID of the raw text"
     )
-    md5: str = Field(description="The checksum of the raw text")
     content: str = Field(description="The content of the raw text")
+    md5: str = Field(default="checksum", description="The checksum of the raw text")
     separator: Optional[str] = Field(
         description="The separator that delineates sections of the raw text"
     )
