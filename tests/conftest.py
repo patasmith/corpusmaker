@@ -6,7 +6,7 @@ from corpusmaker.model import RawText
 
 
 @pytest.fixture
-def simple_raw_text() -> Generator:
+def simple_raw_text() -> Generator[RawText, None, None]:
     """
     Create a simple mock Raw Text
     """
@@ -15,7 +15,7 @@ def simple_raw_text() -> Generator:
 
 
 @pytest.fixture
-def simple_raw_text_with_separator() -> Generator:
+def simple_raw_text_with_separator() -> Generator[RawText, None, None]:
     """
     Create a simple mock Raw Text with a separator
     """
@@ -26,7 +26,7 @@ def simple_raw_text_with_separator() -> Generator:
 
 
 @pytest.fixture
-def db_instance(scope: str = "session") -> Generator:
+def db_instance(scope: str = "session") -> Generator[Database, None, None]:
     """
     Create a database instance
     """
@@ -35,7 +35,9 @@ def db_instance(scope: str = "session") -> Generator:
 
 
 @pytest.fixture
-def session(db_instance, scope="session"):
+def session(
+    db_instance: Database, scope: str = "session"
+) -> Generator[Session, None, None]:
     """
     Create a session and close after test
     """
@@ -45,7 +47,9 @@ def session(db_instance, scope="session"):
 
 
 @pytest.fixture
-def db_instance_empty(db_instance, session, scope="function") -> Generator:
+def db_instance_empty(
+    db_instance: Database, session: Session, scope: str = "function"
+) -> Generator[Database, None, None]:
     """
     Create an empty database instance and clear after test
     """

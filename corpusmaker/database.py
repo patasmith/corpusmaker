@@ -2,9 +2,9 @@
 Database operations for Corpusmaker
 """
 
-import os
+from typing import Optional
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from hashlib import md5
 from sqlmodel import SQLModel, create_engine, Session, select
 from sqlalchemy.engine import Engine
 from corpusmaker.model import RawText
@@ -23,8 +23,29 @@ class Database:
         Enter raw text in the database
         """
         logger.info("Entering raw text in database")
-        session.add(raw_text)
-        session.commit()
+        raw_text.checksum = md5(raw_text.content.encode("utf-8")).hexdigest()
+        statement = select(RawText).where(RawText.checksum == raw_text.checksum)
+        results = session.exec(statement)
+        duplicate = results.first()
+
+        if not duplicate:
+            session.add(raw_text)
+            session.commit()
+
+            logger.info("Raw text added to database")
+        else:
+            logger.error("Duplicate found, not adding")
+            raise Exception("Duplicate found, not adding")
+
+    def read_raw_text(self, session: Session, text_id: int) -> RawText:
+        logger.info(f"Reading Text {text_id} from database")
+        statement = select(RawText).where(RawText.id == text_id)
+        result: Optional[RawText] = session.exec(statement).first()
+        if result:
+            return result
+        else:
+            logger.error("Raw text not found")
+            raise Exception(f"Text {text_id} not found in database")
 
     def delete_raw_text(self, session: Session, text_id: int) -> None:
         """
