@@ -30,7 +30,7 @@ def db_instance(scope: str = "session") -> Generator[Database, None, None]:
     """
     Create a database instance
     """
-    db = Database()
+    db = Database("sqlite://")
     yield db
 
 

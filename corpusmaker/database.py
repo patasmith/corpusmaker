@@ -13,9 +13,10 @@ from loguru import logger
 
 @dataclass
 class Database:
-    engine: Engine = create_engine("sqlite:///database.db", echo=True)
+    pathname: str = "sqlite:///data/database.sqlite3"
 
     def __post_init__(self) -> None:
+        self.engine: Engine = create_engine(self.pathname, echo=True)
         SQLModel.metadata.create_all(self.engine)
 
     def create_raw_text(self, session: Session, raw_text: RawText) -> None:
@@ -46,6 +47,21 @@ class Database:
         else:
             logger.error("Raw text not found")
             raise Exception(f"Text {text_id} not found in database")
+
+    def update_raw_text_separator(
+        self, session: Session, text_id: int, separator: str
+    ) -> None:
+        logger.info(f"Updating Text {text_id} in database")
+        statement = select(RawText).where(RawText.id == text_id)
+        result = session.exec(statement).first()
+        if result:
+            result.separator = separator
+            session.add(result)
+            session.commit()
+            logger.info(f"Updated Text {text_id} in database")
+        else:
+            logger.error(f"Text {text_id} not found in database")
+            raise Exception(f"Text {text_id} not found")
 
     def delete_raw_text(self, session: Session, text_id: int) -> None:
         """
