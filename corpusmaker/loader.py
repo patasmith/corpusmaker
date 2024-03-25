@@ -3,20 +3,20 @@ Textfile operations for Corpusmaker
 """
 
 from dataclasses import dataclass
+from corpusmaker.database import Database
 from corpusmaker.model import RawText
 from loguru import logger
 
 
 @dataclass
 class Loader:
-    filename: str
-    separator: str = ""
+    db: Database
 
-    def read_file(self) -> None:
+    def read_file(self, filename: str, separator: str = "") -> None:
         try:
-            with open(self.filename, "r") as f:
+            with open(filename, "r") as f:
                 contents = f.read()
         except FileNotFoundError:
-            logger.error(f"{self.filename} was not found.")
+            logger.error(f"{filename} was not found.")
         except Exception as e:
             logger.error(e)

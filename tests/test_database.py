@@ -4,7 +4,6 @@ from sqlmodel import Session
 from corpusmaker.model import RawText
 
 
-# Text within textfile can be added to raw_text table
 def test_add_raw_text_to_table(
     db_instance_empty: Database, session: Session, simple_raw_text: RawText
 ) -> None:
@@ -33,11 +32,12 @@ def test_add_raw_text_to_table(
         db_instance_empty.read_raw_text(session=session, text_id=1)
 
 
-# Duplicate text cannot be added to raw_text table
-# Use checksum
 def test_dont_add_duplicate_text_to_table(
     db_instance_empty: Database, session: Session, simple_raw_text: RawText
 ) -> None:
+    """
+    Duplicate text cannot be added to raw_text table
+    """
     db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
     with pytest.raises(Exception):
         db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)

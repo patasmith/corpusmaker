@@ -1,5 +1,9 @@
+from corpusmaker.loader import Loader
+
+
 # Can add single textfile to table
-def test_add_single_textfile_to_table() -> None:
+def test_add_single_textfile_to_table(loader: Loader) -> None:
+    loader.read_file("tests/test_file_1.txt")
     pass
 
 

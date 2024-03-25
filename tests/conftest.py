@@ -3,6 +3,7 @@ import pytest
 from sqlmodel import Session
 from corpusmaker.database import Database
 from corpusmaker.model import RawText
+from corpusmaker.loader import Loader
 
 
 @pytest.fixture
@@ -56,3 +57,12 @@ def db_instance_empty(
     db_instance.delete_all_raw_text(session=session)
     yield db_instance
     db_instance.delete_all_raw_text(session=session)
+
+
+@pytest.fixture
+def loader(db_instance: Database) -> Generator[Loader, None, None]:
+    """
+    Create a loader
+    """
+    loader = Loader(db_instance)
+    yield loader
