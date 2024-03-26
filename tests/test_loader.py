@@ -1,11 +1,15 @@
 from corpusmaker.loader import Loader
-
+    
 
 # Can add single textfile to table
 def test_add_single_textfile_to_table(loader: Loader) -> None:
-    loader.read_file("tests/test_file_1.txt")
-    pass
-
+    raw_text = loader.read_file("tests/files/test_file_1.txt")
+    with open("tests/files/test_file_1.txt") as f:
+        assert raw_text.content == f.read()
+    raw_text = loader.read_file("tests/files/test_file_2.txt", "* * * * *")
+    with open("tests/files/test_file_2.txt") as f:
+        assert raw_text.content == f.read()
+        assert raw_text.separator == "* * * * *"
 
 # Multiple textfiles can be added at once
 # Each textfile will be a separate entry

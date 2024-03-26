@@ -10,13 +10,14 @@ from loguru import logger
 
 @dataclass
 class Loader:
-    db: Database
-
     def read_file(self, filename: str, separator: str = "") -> None:
         try:
             with open(filename, "r") as f:
-                contents = f.read()
+                content = f.read()
+                return RawText(content=content, separator=separator) 
         except FileNotFoundError:
             logger.error(f"{filename} was not found.")
+        except UnicodeDecodeError:
+            logger.error(f"{filename} is not readable as text.")
         except Exception as e:
             logger.error(e)
