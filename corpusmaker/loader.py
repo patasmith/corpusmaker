@@ -23,3 +23,8 @@ class Loader:
         except Exception as e:
             logger.error(e)
         return None
+
+    def read_files(
+        self, filenames: list[str], separator: str = ""
+    ) -> Optional[list[RawText | None]]:
+        return [self.read_file(filename, separator) for filename in filenames]

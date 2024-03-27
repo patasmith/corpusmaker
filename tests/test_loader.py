@@ -1,7 +1,7 @@
 from corpusmaker.loader import Loader
+from corpusmaker.model import RawText
 
 
-# Can add single textfile to table
 def test_add_single_textfile_to_table(loader: Loader) -> None:
     raw_text = loader.read_file("tests/files/test_file_1.txt")
     assert raw_text is not None
@@ -19,12 +19,15 @@ def test_add_single_textfile_to_table(loader: Loader) -> None:
         assert raw_text.separator == "^\n*.*[^.!?]\n^\n"
 
 
-# Multiple textfiles can be added at once
-# Each textfile will be a separate entry
-def test_add_multiple_texts_to_table() -> None:
-    pass
-
-
-# Separator can be specified for textfile(s) when added
-def test_associate_separator_with_text() -> None:
-    pass
+def test_add_multiple_texts_to_table(loader: Loader) -> None:
+    raw_texts = loader.read_files(
+        [
+            "tests/files/test_file_1.txt",
+            "tests/files/test_file_1.txt",
+            "tests/files/test_file_1.txt",
+        ]
+    )
+    assert raw_texts is not None
+    assert len(raw_texts) == 3
+    for raw_text in raw_texts:
+        assert type(raw_text) is RawText
