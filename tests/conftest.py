@@ -4,7 +4,6 @@ from sqlmodel import Session
 from corpusmaker.database import Database
 from corpusmaker.model import RawText
 from corpusmaker.loader import Loader
-from loguru import logger
 
 
 @pytest.fixture
@@ -61,9 +60,11 @@ def db_instance_empty(
 
 
 @pytest.fixture
-def loader() -> Generator[Loader, None, None]:
+def loader(
+    db_instance_empty: Database, session: Session, scope: str = "function"
+) -> Generator[Loader, None, None]:
     """
     Create a loader
     """
-    loader = Loader()
+    loader = Loader(db_instance_empty)
     yield loader
