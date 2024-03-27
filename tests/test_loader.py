@@ -4,6 +4,9 @@ from corpusmaker.model import RawText
 
 
 def test_read_single_textfile(loader: Loader) -> None:
+    """
+    Loader can convert a textfile to a RawText with provided separator
+    """
     raw_text = loader.read_file("tests/files/test_file_1.txt")
     assert raw_text is not None
     with open("tests/files/test_file_1.txt") as f:
@@ -21,6 +24,9 @@ def test_read_single_textfile(loader: Loader) -> None:
 
 
 def test_import_single_textfile(loader: Loader, session: Session) -> None:
+    """
+    Loader can import the contents of a textfile into the database
+    """
     loader.import_file("tests/files/test_file_1.txt")
     raw_text = loader.db.read_raw_text(session=session, text_id=1)
     with open("tests/files/test_file_1.txt") as f:
@@ -28,6 +34,9 @@ def test_import_single_textfile(loader: Loader, session: Session) -> None:
 
 
 def test_import_multiple_textfiles(loader: Loader, session: Session) -> None:
+    """
+    Loader can import multiple textfiles into the database
+    """
     textfiles = [
         "tests/files/test_file_1.txt",
         "tests/files/test_file_2.txt",
@@ -36,7 +45,8 @@ def test_import_multiple_textfiles(loader: Loader, session: Session) -> None:
     separator = "test separator"
     loader.import_files(textfiles, separator)
     raw_texts = [
-        loader.db.read_raw_text(session=session, text_id=n) for n in range(1, 4)
+        loader.db.read_raw_text(session=session, text_id=n)
+        for n in range(1, len(textfiles) + 1)
     ]
     assert raw_texts is not None
     assert len(raw_texts) == 3

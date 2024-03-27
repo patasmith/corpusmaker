@@ -41,3 +41,18 @@ def test_dont_add_duplicate_text_to_table(
     db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
     with pytest.raises(Exception):
         db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
+
+
+def test_change_separator_for_raw_text_entry(
+    db_instance_empty: Database, session: Session, simple_raw_text: RawText
+) -> None:
+    """
+    Raw text separator can be changed
+    """
+    separator = "new separator"
+    db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
+    db_instance_empty.update_raw_text_separator(
+        session=session, text_id=1, separator=separator
+    )
+    raw_text = db_instance_empty.read_raw_text(session=session, text_id=1)
+    assert raw_text.separator == separator
