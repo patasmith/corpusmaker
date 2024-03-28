@@ -5,9 +5,10 @@ Database operations for Corpusmaker
 from typing import Optional
 from dataclasses import dataclass
 from hashlib import md5
+from itertools import islice
 from sqlmodel import SQLModel, create_engine, Session, select
 from sqlalchemy.engine import Engine
-from corpusmaker.model import RawText
+from corpusmaker.model import RawText, Scene
 from loguru import logger
 
 
@@ -32,7 +33,6 @@ class Database:
         if not duplicate:
             session.add(raw_text)
             session.commit()
-
             logger.info("Raw text added to database")
         else:
             logger.error("Duplicate found, not adding")
@@ -107,3 +107,58 @@ class Database:
         else:
             logger.error("Deletion of all raw text failed")
             raise Exception("Deletion of all raw text failed")
+
+    def convert_raw_text_to_scenes(
+        self, session: Session, text_id: int, word_limit: int = 100
+    ) -> list[Scene]:
+        raw_text_lines = [
+            line
+            for line in self.read_raw_text(session, text_id).content.split("\n")
+            if line.strip()
+        ]
+        scene_lines = []
+        for line in raw_text_lines:
+            words = line.split(" ")
+            chunk_length = len(words)
+            while chunk_length > word_limit:
+                chunk_length = int(chunk_length / 2)
+            chunks = [
+                words[i : i + chunk_length] for i in range(0, len(words), chunk_length)
+            ]
+            scene_lines.extend([" ".join(chunk) for chunk in chunks])
+
+        return [
+            Scene(
+                content=line,
+                text_id=text_id,
+                checksum=md5(line.encode("utf-8")).hexdigest(),
+            )
+            for line in scene_lines
+        ]
+
+    def create_scenes(self, session: Session, text_id: int) -> None:
+        logger.info(f"Converting Text {text_id} into scenes")
+        scenes = self.convert_raw_text_to_scenes(session, text_id)
+        for scene in scenes:
+            statement = select(Scene).where(Scene.checksum == scene.checksum)
+            results = session.exec(statement)
+            duplicate = results.first()
+
+            if not duplicate:
+                session.add(scene)
+                session.commit()
+                logger.info("Scene added to database")
+            else:
+                logger.error("Duplicate found, not adding")
+                raise Exception("Duplicate found, not adding")
+
+
+    def read_scene(self, session: Session, scene_id: int) -> Scene:
+        logger.info(f"Reading Scene {scene_id} from database")
+        statement = select(Scene).where(Scene.id == scene_id)
+        result: Optional[Scene] = session.exec(statement).first()
+        if result:
+            return result
+        else:
+            logger.error("Scene not found")
+            raise Exception(f"Scene {scene_id} not found in database")

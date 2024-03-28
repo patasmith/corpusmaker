@@ -4,8 +4,7 @@ Model for storing text
 
 from typing import Optional
 
-from hashlib import md5
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, SQLModel, Relationship
 from datetime import datetime, timezone
 
 
@@ -22,4 +21,18 @@ class RawText(SQLModel, table=True):
         default=datetime.now(timezone.utc),
         nullable=False,
         description="The timestamp of when the raw text was added",
+    )
+
+
+class Scene(SQLModel, table=True):
+    id: Optional[int] = Field(
+        default=None, primary_key=True, description="The ID of the scene"
+    )
+    content: str = Field(description="The content of the scene")
+    checksum: str = Field(description="The checksum of the scene")
+    text_id: int = Field(foreign_key="rawtext.id", description="The parent raw text")
+    created_at: datetime = Field(
+        default=datetime.now(timezone.utc),
+        nullable=False,
+        description="The timestamp of when the scene was added",
     )

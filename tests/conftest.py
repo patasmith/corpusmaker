@@ -49,7 +49,7 @@ def session(
 
 @pytest.fixture
 def db_instance_empty(
-    db_instance: Database, session: Session, scope: str = "function"
+    db_instance: Database, session: Session
 ) -> Generator[Database, None, None]:
     """
     Create an empty database instance and clear after test
@@ -61,10 +61,23 @@ def db_instance_empty(
 
 @pytest.fixture
 def loader(
-    db_instance_empty: Database, session: Session, scope: str = "function"
+    db_instance_empty: Database, session: Session
 ) -> Generator[Loader, None, None]:
     """
     Create a loader
     """
     loader = Loader(db_instance_empty)
     yield loader
+
+
+@pytest.fixture
+def db_instance_raw_text(
+    loader: Loader, session: Session
+) -> Generator[Database, None, None]:
+    """
+    Preload a database with raw text
+    """
+    loader.import_file("tests/files/test_file_1.txt")
+    loader.import_file("tests/files/test_file_2.txt", "* * * * *")
+    loader.import_file("tests/files/test_file_3.txt", "^\n*.*[^.!?]\n^\n")
+    yield loader.db
