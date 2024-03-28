@@ -111,20 +111,64 @@ class Database:
     def convert_raw_text_to_scenes(
         self, session: Session, text_id: int, word_limit: int = 100
     ) -> list[Scene]:
-        raw_text_lines = [
-            line
+        """
+        Split content of raw text into scenes
+        
+        Algorithm:
+        - Split content by newline
+        - For each line of content:
+          - If it is under the word limit:
+            - Add as many next lines as we can
+            - Stop before it's over the limit
+          - If it is over the word limit:
+            - Split the line in half at each word
+            - Keep doing that until the lines are under the limit
+        - Convert each resulting line to a Scene
+
+        Drawback:
+        - Paragraphs longer than the word limit will be split by word, not sentence.
+        
+        """
+        # Split raw text content on line breaks, remove blank lines
+        raw_text_words_by_line = [
+            line.split(" ")
             for line in self.read_raw_text(session, text_id).content.split("\n")
             if line.strip()
         ]
+
         scene_lines = []
-        for line in raw_text_lines:
-            words = line.split(" ")
+        previous_words = []
+        for index, current_words in enumerate(raw_text_words_by_line):
+            # If there was a previous line to add to this one, add it
+            words = list(previous_words)
+            words.extend(current_words)
+            # Reset the previous line now that it's been added
+            previous_words = []
+            
             chunk_length = len(words)
+            next_index = index + 1
+            
+            # If current line is below word limit, check if we can add
+            # the next line to it without going over the limit. If we can,
+            # skip this iteration and do that at the beginning of the next one
+            if chunk_length < word_limit:
+                if next_index < len(raw_text_words_by_line):
+                    if chunk_length + len(raw_text_words_by_line[next_index]) < word_limit:
+                        previous_words.extend(words)
+                        continue
+                    
+            # If current line is above word limit, define how we're going to
+            # split it down to fit: halve the target length until it's below the limit.
             while chunk_length > word_limit:
                 chunk_length = int(chunk_length / 2)
+
+            # Split our current line down into sublists (chunks) as necessary
             chunks = [
                 words[i : i + chunk_length] for i in range(0, len(words), chunk_length)
             ]
+
+            # Each sublist of words becomes a string, and is added to the list
+            # of strings to be turned into Scenes
             scene_lines.extend([" ".join(chunk) for chunk in chunks])
 
         return [
@@ -151,7 +195,6 @@ class Database:
             else:
                 logger.error("Duplicate found, not adding")
                 raise Exception("Duplicate found, not adding")
-
 
     def read_scene(self, session: Session, scene_id: int) -> Scene:
         logger.info(f"Reading Scene {scene_id} from database")
