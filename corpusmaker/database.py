@@ -108,35 +108,38 @@ class Database:
             logger.error("Deletion of all raw text failed")
             raise Exception("Deletion of all raw text failed")
 
-    def convert_raw_text_without_separator_to_scenes(
-        self, session: Session, content: str, word_limit: int = 100
+    def convert_raw_text_to_scenes(
+        self, session: Session, text_id: int, word_limit: int = 100
     ) -> list[Scene]:
         """
         Split content of raw text into scenes
 
         Algorithm:
-        - Split content by newline
-        - For each line of content:
+        - Split content by separator (newline by default)
+        - For each section of content:
           - If it is under the word limit:
-            - Add as many next lines as we can
+            - Add as many next sections as we can
             - Stop before it's over the limit
           - If it is over the word limit:
-            - Split the line in half at each word
-            - Keep doing that until the lines are under the limit
-        - Convert each resulting line to a Scene
+            - Split the section in half by word
+            - Keep doing that until the subsections are under the limit
+        - Convert each resulting section to a Scene
 
         Drawback:
-        - Paragraphs longer than the word limit will be split by word, not sentence.
+        - Sections longer than the word limit will be split by word, not sentence or line.
 
         """
+        raw_text = self.read_raw_text(session, text_id)
         # Split raw text content on line breaks, remove blank lines
-        raw_text_words_by_line = [
-            line.split(" ") for line in content.split("\n") if line.strip()
+        raw_text_words_by_section = [
+            section.strip().split(" ")
+            for section in raw_text.content.split(raw_text.separator or "\n")
+            if section.strip()
         ]
 
-        scene_lines = []
-        previous_words = []
-        for index, current_words in enumerate(raw_text_words_by_line):
+        sections = []
+        previous_words: list[str] = []
+        for index, current_words in enumerate(raw_text_words_by_section):
             # If there was a previous line to add to this one, add it
             words = list(previous_words)
             words.extend(current_words)
@@ -149,10 +152,10 @@ class Database:
             # If current line is below word limit, check if we can add
             # the next line to it without going over the limit. If we can,
             # skip this iteration and do that at the beginning of the next one
-            if chunk_length < word_limit:
-                if next_index < len(raw_text_words_by_line):
+            if (not raw_text.separator) and chunk_length < word_limit:
+                if next_index < len(raw_text_words_by_section):
                     if (
-                        chunk_length + len(raw_text_words_by_line[next_index])
+                        chunk_length + len(raw_text_words_by_section[next_index])
                         < word_limit
                     ):
                         previous_words.extend(words)
@@ -161,37 +164,21 @@ class Database:
             # If current line is above word limit, define how we're going to
             # split it down to fit: halve the target length until it's below the limit.
             while chunk_length > word_limit:
-                chunk_length = int(chunk_length / 2)
+                chunk_length = -(-chunk_length // 2)
 
             # Split our current line down into sublists (chunks) as necessary
             chunks = [
                 words[i : i + chunk_length] for i in range(0, len(words), chunk_length)
             ]
+            sections.extend([" ".join(chunk) for chunk in chunks])
 
-            # Each sublist of words becomes a string, and is added to the list
-            # of strings to be turned into Scenes
-            scene_lines.extend([" ".join(chunk) for chunk in chunks])
-
-        return scene_lines
-
-    def convert_raw_text_to_scenes(
-        self, session: Session, text_id: int, word_limit: int = 100
-    ) -> list[Scene]:
-        raw_text = self.read_raw_text(session, text_id)
-        content = []
-        if raw_text.separator:
-            content.extend(["separator"])
-        else:
-            content.extend(self.convert_raw_text_without_separator_to_scenes(
-                session, raw_text.content, word_limit
-            ))
         return [
             Scene(
-                content=text,
+                content=section,
                 text_id=text_id,
-                checksum=md5(text.encode("utf-8")).hexdigest(),
+                checksum=md5(section.encode("utf-8")).hexdigest(),
             )
-            for text in content
+            for section in sections
         ]
 
     def create_scenes(self, session: Session, text_id: int) -> None:

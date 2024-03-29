@@ -102,12 +102,32 @@ def test_split_raw_text_with_separator_into_scenes(
     Raw text with a separator can be split into properly sized scenes
     """
     raw_text_lines_2 = split_raw_text(db_instance_raw_text, session, 2)
-    scenes_2 = db_instance_raw_text.convert_raw_text_to_scenes(
+
+    scenes_2_100 = db_instance_raw_text.convert_raw_text_to_scenes(
         session=session, text_id=2, word_limit=100
     )
-    assert scenes_2[0].text_id == 2
-    #assert scenes_2[0].content == raw_text_lines_2[0]
-    assert scenes_2[0].content == "separator"
+    assert scenes_2_100[0].text_id == 2
+    assert scenes_2_100[0].content == raw_text_lines_2[0]
+
+    scenes_2_60 = db_instance_raw_text.convert_raw_text_to_scenes(
+        session=session, text_id=2, word_limit=60
+    )
+    with open("scenes0.txt", "w") as f:
+        f.write(str(scenes_2_60[0].content))
+    with open("scenes1.txt", "w") as f:
+        f.write(str(scenes_2_60[1].content))
+    with open("scenes2.txt", "w") as f:
+        f.write(str(scenes_2_60[2].content))
+    with open("raw_text.txt", "w") as f:
+        f.write(str(raw_text_lines_2))
+    assert scenes_2_60[0].text_id == 2
+    assert scenes_2_60[0].content == raw_text_lines_2[0][:328]
+    assert scenes_2_60[1].content == raw_text_lines_2[0][329:]
+    assert scenes_2_60[2].content == raw_text_lines_2[2]
+    assert scenes_2_60[3].content == " ".join(raw_text_lines_2[4].split(" ")[:33])
+    assert scenes_2_60[4].content == " ".join(raw_text_lines_2[4].split(" ")[33:66])
+    assert scenes_2_60[5].content == " ".join(raw_text_lines_2[4].split(" ")[66:99])
+    assert scenes_2_60[6].content == " ".join(raw_text_lines_2[4].split(" ")[99:])
 
 
 def test_add_scenes_to_scene_table(
