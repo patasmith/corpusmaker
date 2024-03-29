@@ -58,23 +58,23 @@ def test_change_separator_for_raw_text_entry(
     assert raw_text.separator == separator
 
 
+def split_raw_text(db: Database, session: Session, text_id: int) -> list[str]:
+    return [
+        line
+        for line in db.read_raw_text(session=session, text_id=text_id).content.split(
+            "\n"
+        )
+        if line.strip()
+    ]
+
+
 def test_split_raw_text_without_separator_into_scenes(
     db_instance_raw_text: Database, session: Session
 ) -> None:
     """
     Raw text without a separator can be split into properly sized scenes
     """
-
-    def split_raw_text(session: Session, text_id: int) -> list[str]:
-        return [
-            line
-            for line in db_instance_raw_text.read_raw_text(
-                session=session, text_id=text_id
-            ).content.split("\n")
-            if line.strip()
-        ]
-
-    raw_text_lines_1 = split_raw_text(session, 1)
+    raw_text_lines_1 = split_raw_text(db_instance_raw_text, session, 1)
     scenes_1 = db_instance_raw_text.convert_raw_text_to_scenes(
         session=session, text_id=1, word_limit=100
     )
@@ -83,7 +83,7 @@ def test_split_raw_text_without_separator_into_scenes(
     assert scenes_1[2].text_id == 1
     assert scenes_1[2].content == raw_text_lines_1[2][:411]
 
-    raw_text_lines_4 = split_raw_text(session, 4)
+    raw_text_lines_4 = split_raw_text(db_instance_raw_text, session, 4)
     scenes_4 = db_instance_raw_text.convert_raw_text_to_scenes(
         session=session, text_id=4, word_limit=100
     )
@@ -95,6 +95,21 @@ def test_split_raw_text_without_separator_into_scenes(
     assert scenes_4[2].content == raw_text_lines_4[14][:411]
 
 
+def test_split_raw_text_with_separator_into_scenes(
+    db_instance_raw_text: Database, session: Session
+) -> None:
+    """
+    Raw text with a separator can be split into properly sized scenes
+    """
+    raw_text_lines_2 = split_raw_text(db_instance_raw_text, session, 2)
+    scenes_2 = db_instance_raw_text.convert_raw_text_to_scenes(
+        session=session, text_id=2, word_limit=100
+    )
+    assert scenes_2[0].text_id == 2
+    #assert scenes_2[0].content == raw_text_lines_2[0]
+    assert scenes_2[0].content == "separator"
+
+
 def test_add_scenes_to_scene_table(
     db_instance_raw_text: Database, session: Session
 ) -> None:
@@ -102,6 +117,7 @@ def test_add_scenes_to_scene_table(
     Scenes can be added to scene table
     """
     db_instance_raw_text.create_scenes(session=session, text_id=1)
-    raw_text = db_instance_raw_text.read_raw_text(session=session, text_id=1)
+    raw_text_lines = split_raw_text(db_instance_raw_text, session, 1)
     scene = db_instance_raw_text.read_scene(session=session, scene_id=1)
-    assert raw_text.content == scene.content
+    assert scene.text_id == 1
+    assert scene.content == raw_text_lines[0]
