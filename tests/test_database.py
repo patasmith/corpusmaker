@@ -112,14 +112,6 @@ def test_split_raw_text_with_separator_into_scenes(
     scenes_2_60 = db_instance_raw_text.convert_raw_text_to_scenes(
         session=session, text_id=2, word_limit=60
     )
-    with open("scenes0.txt", "w") as f:
-        f.write(str(scenes_2_60[0].content))
-    with open("scenes1.txt", "w") as f:
-        f.write(str(scenes_2_60[1].content))
-    with open("scenes2.txt", "w") as f:
-        f.write(str(scenes_2_60[2].content))
-    with open("raw_text.txt", "w") as f:
-        f.write(str(raw_text_lines_2))
     assert scenes_2_60[0].text_id == 2
     assert scenes_2_60[0].content == raw_text_lines_2[0][:328]
     assert scenes_2_60[1].content == raw_text_lines_2[0][329:]
@@ -128,6 +120,22 @@ def test_split_raw_text_with_separator_into_scenes(
     assert scenes_2_60[4].content == " ".join(raw_text_lines_2[4].split(" ")[33:66])
     assert scenes_2_60[5].content == " ".join(raw_text_lines_2[4].split(" ")[66:99])
     assert scenes_2_60[6].content == " ".join(raw_text_lines_2[4].split(" ")[99:])
+
+
+def test_split_raw_text_with_regex_separator_into_scenes(
+    db_instance_raw_text: Database, session: Session
+) -> None:
+    """
+    Raw text with a regex separator will be handled as above
+    """
+    raw_text_lines_3 = split_raw_text(db_instance_raw_text, session, 3)
+
+    scenes_3_100 = db_instance_raw_text.convert_raw_text_to_scenes(
+        session=session, text_id=3, word_limit=100
+    )
+    assert scenes_3_100[0].text_id == 3
+    assert scenes_3_100[0].content == raw_text_lines_3[1]
+    assert scenes_3_100[2].content == " ".join(raw_text_lines_3[5].split(" ")[:65])
 
 
 def test_add_scenes_to_scene_table(

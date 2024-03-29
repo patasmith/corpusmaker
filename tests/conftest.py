@@ -79,6 +79,6 @@ def db_instance_raw_text(
     """
     loader.import_file("tests/files/test_file_1.txt")
     loader.import_file("tests/files/test_file_2.txt", "* * * * *")
-    loader.import_file("tests/files/test_file_3.txt", "^\n*.*[^.!?]\n^\n")
+    loader.import_file("tests/files/test_file_3.txt", "Chapter \\d+", True)
     loader.import_file("tests/files/test_file_4.txt")
     yield loader.db

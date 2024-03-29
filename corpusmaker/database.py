@@ -5,7 +5,7 @@ Database operations for Corpusmaker
 from typing import Optional
 from dataclasses import dataclass
 from hashlib import md5
-from itertools import islice
+import re
 from sqlmodel import SQLModel, create_engine, Session, select
 from sqlalchemy.engine import Engine
 from corpusmaker.model import RawText, Scene
@@ -130,12 +130,25 @@ class Database:
 
         """
         raw_text = self.read_raw_text(session, text_id)
-        # Split raw text content on line breaks, remove blank lines
-        raw_text_words_by_section = [
-            section.strip().split(" ")
-            for section in raw_text.content.split(raw_text.separator or "\n")
-            if section.strip()
-        ]
+        raw_text_words_by_section = []
+        if raw_text.use_regex:
+            raw_text_words_by_section.extend(
+                [
+                    section.strip().split(" ")
+                    for section in re.split(
+                        re.compile(raw_text.separator), raw_text.content
+                    )
+                    if section.strip()
+                ]
+            )
+        else:
+            raw_text_words_by_section.extend(
+                [
+                    section.strip().split(" ")
+                    for section in raw_text.content.split(raw_text.separator or "\n")
+                    if section.strip()
+                ]
+            )
 
         sections = []
         previous_words: list[str] = []

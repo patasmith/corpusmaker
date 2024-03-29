@@ -15,11 +15,15 @@ from loguru import logger
 class Loader:
     db: Database
 
-    def read_file(self, filename: str, separator: str = "") -> Optional[RawText]:
+    def read_file(
+        self, filename: str, separator: str = "", use_regex: bool = False
+    ) -> Optional[RawText]:
         try:
             with open(filename, "r") as f:
                 content = f.read()
-                return RawText(content=content, separator=separator)
+                return RawText(
+                    content=content, separator=separator, use_regex=use_regex
+                )
         except FileNotFoundError:
             logger.error(f"{filename} was not found.")
         except UnicodeDecodeError:
@@ -28,12 +32,16 @@ class Loader:
             logger.error(e)
         return None
 
-    def import_file(self, filename: str, separator: str = "") -> None:
-        raw_text = self.read_file(filename, separator)
+    def import_file(
+        self, filename: str, separator: str = "", use_regex: bool = False
+    ) -> None:
+        raw_text = self.read_file(filename, separator, use_regex)
         if raw_text:
             session = Session(self.db.engine)
             self.db.create_raw_text(session, raw_text)
 
-    def import_files(self, filenames: list[str], separator: str = "") -> None:
+    def import_files(
+        self, filenames: list[str], separator: str = "", use_regex: bool = False
+    ) -> None:
         for filename in filenames:
-            self.import_file(filename, separator)
+            self.import_file(filename, separator, use_regex)

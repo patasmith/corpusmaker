@@ -4,7 +4,7 @@ Model for storing text
 
 from typing import Optional
 
-from sqlmodel import Field, SQLModel, Relationship
+from sqlmodel import Field, SQLModel
 from datetime import datetime, timezone
 
 
@@ -14,8 +14,12 @@ class RawText(SQLModel, table=True):
     )
     content: str = Field(description="The content of the raw text")
     checksum: str = Field(description="The checksum of the raw text")
-    separator: Optional[str] = Field(
-        description="The separator that delineates sections of the raw text"
+    separator: str = Field(
+        default="", description="The separator that delineates sections of the raw text"
+    )
+    use_regex: bool = Field(
+        default=False,
+        description="Determines whether the separator is to interpreted as regex or not",
     )
     created_at: datetime = Field(
         default=datetime.now(timezone.utc),
