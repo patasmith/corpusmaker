@@ -35,6 +35,7 @@ class Scene(SQLModel, table=True):
     content: str = Field(description="The content of the scene")
     checksum: str = Field(description="The checksum of the scene")
     text_id: int = Field(foreign_key="rawtext.id", description="The parent raw text")
+    summary: str = Field(default="", description="The generated summary of the scene")
     created_at: datetime = Field(
         default=datetime.now(timezone.utc),
         nullable=False,

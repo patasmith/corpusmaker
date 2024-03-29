@@ -144,8 +144,19 @@ def test_add_scenes_to_scene_table(
     """
     Scenes can be added to scene table
     """
-    db_instance_raw_text.create_scenes(session=session, text_id=1)
+    db_instance_raw_text.create_scenes(session=session, text_id=1, word_limit=100)
     raw_text_lines = split_raw_text(db_instance_raw_text, session, 1)
     scene = db_instance_raw_text.read_scene(session=session, scene_id=1)
     assert scene.text_id == 1
     assert scene.content == raw_text_lines[0]
+
+
+def test_find_scenes_without_summaries(
+    db_instance_scenes: Database, session: Session
+) -> None:
+    """
+    Get content of scenes that don't have summaries
+    """
+    scenes = db_instance_scenes.find_scenes_without_summaries(session)
+    for i in range(0, 4):
+        assert scenes[i].id == i + 1

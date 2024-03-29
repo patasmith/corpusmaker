@@ -82,3 +82,14 @@ def db_instance_raw_text(
     loader.import_file("tests/files/test_file_3.txt", "Chapter \\d+", True)
     loader.import_file("tests/files/test_file_4.txt")
     yield loader.db
+
+
+@pytest.fixture
+def db_instance_scenes(
+    db_instance_raw_text: Database, session: Session
+) -> Generator[Database, None, None]:
+    """
+    Preload a database with scenes
+    """
+    db_instance_raw_text.create_scenes(session, 3, 2000)
+    yield db_instance_raw_text

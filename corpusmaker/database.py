@@ -109,7 +109,7 @@ class Database:
             raise Exception("Deletion of all raw text failed")
 
     def convert_raw_text_to_scenes(
-        self, session: Session, text_id: int, word_limit: int = 100
+        self, session: Session, text_id: int, word_limit: int
     ) -> list[Scene]:
         """
         Split content of raw text into scenes
@@ -194,9 +194,12 @@ class Database:
             for section in sections
         ]
 
-    def create_scenes(self, session: Session, text_id: int) -> None:
+    def create_scenes(self, session: Session, text_id: int, word_limit: int) -> None:
+        """
+        Split up a stored Raw Text into scenes
+        """
         logger.info(f"Converting Text {text_id} into scenes")
-        scenes = self.convert_raw_text_to_scenes(session, text_id)
+        scenes = self.convert_raw_text_to_scenes(session, text_id, word_limit)
         for scene in scenes:
             statement = select(Scene).where(Scene.checksum == scene.checksum)
             results = session.exec(statement)
@@ -211,6 +214,9 @@ class Database:
                 raise Exception("Duplicate found, not adding")
 
     def read_scene(self, session: Session, scene_id: int) -> Scene:
+        """
+        Find a specific scene
+        """
         logger.info(f"Reading Scene {scene_id} from database")
         statement = select(Scene).where(Scene.id == scene_id)
         result: Optional[Scene] = session.exec(statement).first()
@@ -219,3 +225,11 @@ class Database:
         else:
             logger.error("Scene not found")
             raise Exception(f"Scene {scene_id} not found in database")
+
+    def find_scenes_without_summaries(self, session: Session) -> list[Scene]:
+        """
+        Find all stored Scenes that do not yet have a summary
+        """
+        logger.info("Grabbing unsummarized scenes from database")
+        statement = select(Scene).where(Scene.summary == "")
+        return session.exec(statement).all()
