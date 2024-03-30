@@ -181,3 +181,17 @@ def test_find_scenes_with_summaries(
     scenes = db_instance_summaries.find_scenes_with_summaries(session)
     for scene in scenes:
         assert scene.summary == "mock summary"
+
+
+def test_convert_summarized_scenes_to_pcps(
+    db_instance_summaries: Database, session: Session
+) -> None:
+    """
+    Convert contents and summaries of scenes to prompt-completion pairs
+    """
+    pcps = db_instance_summaries.get_pcps(session)
+    assert len(pcps) == 5
+    for pcp in pcps:
+        assert pcp["prompt"] == "mock summary"
+        assert type(pcp["completion"]) is str
+        assert len(pcp["completion"]) > 0

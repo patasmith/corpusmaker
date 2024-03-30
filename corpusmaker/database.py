@@ -253,3 +253,11 @@ class Database:
         logger.info("Grabbing summarized scenes from database")
         statement = select(Scene).where(Scene.summary != "")
         return list(session.exec(statement).all())
+
+    def get_pcps(self, session: Session) -> list[dict]:
+        """
+        Get a list of prompt-completion pairs for all summarized scenes
+        """
+        logger.info("Grabbing PCPs")
+        scenes = self.find_scenes_with_summaries(session)
+        return [{"prompt": scene.summary, "completion": scene.content} for scene in scenes]
