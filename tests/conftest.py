@@ -1,4 +1,6 @@
 from typing import Generator
+from pytest_mock import MockerFixture
+
 import pytest
 from sqlmodel import Session
 from corpusmaker.database import Database
@@ -97,7 +99,7 @@ def db_instance_scenes(
 
 
 @pytest.fixture
-def requester(mocker, scope: str = "session") -> Generator[Requester, None, None]:
+def requester(mocker: MockerFixture, scope: str = "session") -> Generator[Requester, None, None]:
     """
     Create a requester object for making API calls
     """

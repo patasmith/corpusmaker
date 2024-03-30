@@ -1,10 +1,15 @@
+from pytest_mock import MockerFixture
+
 from corpusmaker.database import Database
 from corpusmaker.requester import Requester
 from sqlmodel import Session
 
 
 def test_generate_summaries(
-    mocker, db_instance_scenes: Database, session: Session, requester: Requester
+    mocker: MockerFixture,
+    db_instance_scenes: Database,
+    session: Session,
+    requester: Requester,
 ) -> None:
     """
     Generate summaries from scene content

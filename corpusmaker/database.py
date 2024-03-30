@@ -232,7 +232,7 @@ class Database:
         """
         logger.info("Grabbing unsummarized scenes from database")
         statement = select(Scene).where(Scene.summary == "")
-        return session.exec(statement).all()
+        return list(session.exec(statement).all())
 
     def update_summary(
         self, session: Session, scene_id: int, summary: str = ""
