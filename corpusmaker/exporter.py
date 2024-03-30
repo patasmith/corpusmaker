@@ -8,11 +8,12 @@ from dataclasses import dataclass
 @dataclass
 class Exporter:
     system_prompt: str
+    filename: str
 
     def make_message(self, role: str, content: str) -> str:
         return '{"role": "' + role + '", "content": "' + content + '"}'
 
-    def convert_pcp_to_chat_completion_jsonline(self, pcp: dict) -> str:
+    def convert_pcp_to_chat_completion_jsonline(self, pcp: dict[str, str]) -> str:
         system_message = self.make_message("system", self.system_prompt)
         user_message = self.make_message("user", pcp["prompt"])
         assistant_message = self.make_message("assistant", pcp["completion"])
@@ -25,3 +26,8 @@ class Exporter:
             + assistant_message
             + "]}"
         )
+
+    def export_pcps_to_jsonl(self, pcps: list[dict[str, str]]) -> None:
+        with open(self.filename, "w") as f:
+            for pcp in pcps:
+                f.write(self.convert_pcp_to_chat_completion_jsonline(pcp) + "\n")

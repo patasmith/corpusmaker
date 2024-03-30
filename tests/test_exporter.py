@@ -1,4 +1,6 @@
+from corpusmaker.database import Database
 from corpusmaker.exporter import Exporter
+from sqlmodel import Session
 
 
 def test_convert_pcp_to_jsonl(exporter: Exporter) -> None:
@@ -9,3 +11,15 @@ def test_convert_pcp_to_jsonl(exporter: Exporter) -> None:
         '{"role": "user", "content": "mock prompt"}, '
         '{"role": "assistant", "content": "mock completion"}]}'
     )
+
+
+def test_export_pcps_to_jsonl(
+    db_instance_summaries: Database, exporter: Exporter, session: Session
+) -> None:
+    pcps = db_instance_summaries.get_pcps(session)
+    exporter.export_pcps_to_jsonl(pcps)
+    with open(exporter.filename) as f:
+        jsonl = f.read().split("\n")
+    for index, pcp in enumerate(pcps):
+        jsonline = exporter.convert_pcp_to_chat_completion_jsonline(pcp)
+        assert jsonl[index] == jsonline

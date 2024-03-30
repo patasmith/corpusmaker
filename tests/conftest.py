@@ -131,5 +131,7 @@ def db_instance_summaries(
 
 @pytest.fixture
 def exporter(scope: str = "session") -> Generator[Exporter, None, None]:
-    exporter = Exporter("mock system prompt")
+    exporter = Exporter(
+        system_prompt="mock system prompt", filename="tests/files/test_output.txt"
+    )
     yield exporter
