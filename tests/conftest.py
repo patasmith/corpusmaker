@@ -7,6 +7,7 @@ from corpusmaker.database import Database
 from corpusmaker.model import RawText
 from corpusmaker.loader import Loader
 from corpusmaker.requester import Requester
+from corpusmaker.exporter import Exporter
 
 
 @pytest.fixture
@@ -126,3 +127,9 @@ def db_instance_summaries(
             session, scene.id, requester.generate_summary(scene.content)
         )
     yield db_instance_scenes
+
+
+@pytest.fixture
+def exporter(scope: str = "session") -> Generator[Exporter, None, None]:
+    exporter = Exporter("mock system prompt")
+    yield exporter
