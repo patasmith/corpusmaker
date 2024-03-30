@@ -15,9 +15,7 @@ class Requester:
         """
         Summarize the provided text
         """
-        return "not working"
-        """
-        return (
+        return str(
             self.client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -28,11 +26,3 @@ class Requester:
             .choices[0]
             .message
         )
-        """
-
-    def generate_summaries(self, scenes: list[Scene]) -> None:
-        """
-        Generate summaries for each scene in a list
-        """
-        for scene in scenes:
-            scene.summary = self.generate_summary(scene.content)

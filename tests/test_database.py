@@ -170,3 +170,14 @@ def test_find_scenes_without_summaries(
     db_instance_scenes.find_scenes_without_summaries(session)
     for i in [2, 3, 5]:
         assert scenes[i - 1].id == i
+
+
+def test_find_scenes_with_summaries(
+    db_instance_summaries: Database, session: Session
+) -> None:
+    """
+    Get list of all scenes that have summaries
+    """
+    scenes = db_instance_summaries.find_scenes_with_summaries(session)
+    for scene in scenes:
+        assert scene.summary == "mock summary"

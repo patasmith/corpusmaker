@@ -245,3 +245,11 @@ class Database:
         scene.summary = summary
         session.add(scene)
         session.commit()
+
+    def find_scenes_with_summaries(self, session: Session) -> list[Scene]:
+        """
+        Find all stored Scenes that have a summary
+        """
+        logger.info("Grabbing summarized scenes from database")
+        statement = select(Scene).where(Scene.summary != "")
+        return list(session.exec(statement).all())

@@ -92,14 +92,16 @@ def db_instance_scenes(
     db_instance_raw_text: Database, session: Session
 ) -> Generator[Database, None, None]:
     """
-    Preload a database with scenes
+    Preload a database with blank scenes
     """
     db_instance_raw_text.create_scenes(session, 3, 2000)
     yield db_instance_raw_text
 
 
 @pytest.fixture
-def requester(mocker: MockerFixture, scope: str = "session") -> Generator[Requester, None, None]:
+def requester(
+    mocker: MockerFixture, scope: str = "session"
+) -> Generator[Requester, None, None]:
     """
     Create a requester object for making API calls
     """
@@ -108,3 +110,19 @@ def requester(mocker: MockerFixture, scope: str = "session") -> Generator[Reques
     )
     requester = Requester()
     yield requester
+
+
+@pytest.fixture
+def db_instance_summaries(
+    db_instance_scenes: Database, requester: Requester, session: Session
+) -> Generator[Database, None, None]:
+    """
+    Preload a database with summarized scenes
+    """
+    scenes = db_instance_scenes.find_scenes_without_summaries(session)
+    for scene in scenes:
+        assert type(scene.id) is int
+        db_instance_scenes.update_summary(
+            session, scene.id, requester.generate_summary(scene.content)
+        )
+    yield db_instance_scenes
