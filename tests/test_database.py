@@ -1,7 +1,7 @@
 import pytest
 from corpusmaker.database import Database
 from sqlmodel import Session
-from corpusmaker.model import RawText, Scene
+from corpusmaker.model import RawText
 
 
 def test_add_raw_text_to_table(
@@ -160,3 +160,13 @@ def test_find_scenes_without_summaries(
     scenes = db_instance_scenes.find_scenes_without_summaries(session)
     for i in range(0, 4):
         assert scenes[i].id == i + 1
+
+    summary = "An example scene summary."
+    db_instance_scenes.update_summary(session=session, scene_id=1, summary=summary)
+    scene_1 = db_instance_scenes.read_scene(session=session, scene_id=1)
+    assert scene_1.summary == summary
+
+    db_instance_scenes.update_summary(session=session, scene_id=4, summary=summary)
+    db_instance_scenes.find_scenes_without_summaries(session)
+    for i in [2, 3, 5]:
+        assert scenes[i - 1].id == i

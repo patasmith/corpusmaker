@@ -16,6 +16,8 @@ sqlalchemy = {extras = ["mypy"], version = "^2.0.28"}
 poethepoet = "^0.25.0"
 loguru = "^0.7.2"
 fire = "^0.6.0"
+openai = "^1.14.3"
+pytest-mock = "^3.14.0"
 
 
 [build-system]

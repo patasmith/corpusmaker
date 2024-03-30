@@ -233,3 +233,15 @@ class Database:
         logger.info("Grabbing unsummarized scenes from database")
         statement = select(Scene).where(Scene.summary == "")
         return session.exec(statement).all()
+
+    def update_summary(
+        self, session: Session, scene_id: int, summary: str = ""
+    ) -> None:
+        """
+        Add a summary to a Scene. If no summary is provided, clear the current summary.
+        """
+        logger.info(f"Summarizing Scene {scene_id}")
+        scene = self.read_scene(session, scene_id)
+        scene.summary = summary
+        session.add(scene)
+        session.commit()

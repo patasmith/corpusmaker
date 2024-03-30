@@ -4,6 +4,7 @@ from sqlmodel import Session
 from corpusmaker.database import Database
 from corpusmaker.model import RawText
 from corpusmaker.loader import Loader
+from corpusmaker.requester import Requester
 
 
 @pytest.fixture
@@ -93,3 +94,15 @@ def db_instance_scenes(
     """
     db_instance_raw_text.create_scenes(session, 3, 2000)
     yield db_instance_raw_text
+
+
+@pytest.fixture
+def requester(mocker, scope: str = "session") -> Generator[Requester, None, None]:
+    """
+    Create a requester object for making API calls
+    """
+    mocker.patch(
+        "corpusmaker.requester.Requester.generate_summary", return_value="mock summary"
+    )
+    requester = Requester()
+    yield requester
