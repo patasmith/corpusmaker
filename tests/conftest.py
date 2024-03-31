@@ -149,3 +149,9 @@ def cli() -> Generator[Cli, None, None]:
         os.remove(filename)
     except FileNotFoundError:
         logger.error(f"Can't delete missing file: {filename}")
+
+
+@pytest.fixture
+def db_instance_real_summaries() -> Generator[Database, None, None]:
+    db = Database("sqlite:///tests/files/summaries.sqlite3")
+    yield db

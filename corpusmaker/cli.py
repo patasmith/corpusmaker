@@ -67,10 +67,11 @@ class Cli:
         self,
         system_prompt_file: str = "data/finetuning_system_prompt.txt",
         export_file: str = f"data/scenes_{datetime.today().strftime('%Y-%m-%dT%H:%M:%S%z')}.jsonl",
+        filter_for: str = "",
     ) -> None:
         with Session(self.db.engine) as session:
             with open(system_prompt_file) as f:
                 system_prompt = f.read()
             exporter = Exporter(system_prompt, export_file)
-            pcps = self.db.get_pcps(session)
+            pcps = self.db.get_pcps(session, filter_for)
             exporter.export_pcps_to_jsonl(pcps)

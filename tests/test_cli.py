@@ -74,6 +74,6 @@ def test_export_to_jsonl(mocker: MockerFixture, cli: Cli) -> None:
 
     cli.summarize_scenes(system_prompt)
     cli.export_summaries(system_prompt, jsonl)
-    with open(jsonl, "r") as f:
+    with open(jsonl, "r", encoding="utf-8-sig") as f:
         content = [json.loads(line) for line in f]
     assert len(content) == 10

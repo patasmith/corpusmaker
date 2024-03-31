@@ -196,3 +196,12 @@ def test_convert_summarized_scenes_to_pcps(
         assert pcp["prompt"] == "mock summary"
         assert type(pcp["completion"]) is str
         assert len(pcp["completion"]) > 0
+
+
+def test_only_convert_valid_summaries(db_instance_real_summaries: Database) -> None:
+    """
+    PCPs must contain a specific phrase in the completion
+    """
+    with Session(db_instance_real_summaries.engine) as session:
+        pcps = db_instance_real_summaries.get_pcps(session, "SUMMARY:")
+        assert len(pcps) == 3
