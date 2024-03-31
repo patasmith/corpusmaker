@@ -25,5 +25,5 @@ class Requester:
                 ],
             )
             .choices[0]
-            .message
+            .message.content
         )
