@@ -46,7 +46,7 @@ class Cli:
 
     def summarize_scenes(
         self,
-        system_prompt_file: str = "data/system_prompt.txt",
+        system_prompt_file: str = "data/summarizing_system_prompt.txt",
         model: str = "gpt-3.5-turbo",
     ) -> None:
         with Session(self.db.engine) as session:
@@ -65,8 +65,8 @@ class Cli:
 
     def export_summaries(
         self,
-        system_prompt_file: str = "data/system_prompt.txt",
-        export_file: str = f"data/scenes_{datetime.today().strftime}.jsonl",
+        system_prompt_file: str = "data/finetuning_system_prompt.txt",
+        export_file: str = f"data/scenes_{datetime.today().strftime('%Y-%m-%dT%H:%M:%S%z')}.jsonl",
     ) -> None:
         with Session(self.db.engine) as session:
             with open(system_prompt_file) as f:
