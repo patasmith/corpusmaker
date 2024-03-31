@@ -8,6 +8,7 @@ from corpusmaker.model import RawText
 from corpusmaker.loader import Loader
 from corpusmaker.requester import Requester
 from corpusmaker.exporter import Exporter
+from corpusmaker.cli import Cli
 
 
 @pytest.fixture
@@ -109,7 +110,7 @@ def requester(
     mocker.patch(
         "corpusmaker.requester.Requester.generate_summary", return_value="mock summary"
     )
-    requester = Requester()
+    requester = Requester(system_prompt="mock system prompt", model="gpt-3.5-turbo")
     yield requester
 
 
@@ -132,6 +133,12 @@ def db_instance_summaries(
 @pytest.fixture
 def exporter(scope: str = "session") -> Generator[Exporter, None, None]:
     exporter = Exporter(
-        system_prompt="mock system prompt", filename="tests/files/test_output.txt"
+        system_prompt="mock system prompt", filename="tests/files/test_output.jsonl"
     )
     yield exporter
+
+
+@pytest.fixture
+def cli(scope: str = "session") -> Generator[Cli, None, None]:
+    cli = Cli(db_file="sqlite://")
+    yield cli

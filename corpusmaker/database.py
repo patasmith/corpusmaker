@@ -211,7 +211,6 @@ class Database:
                 logger.info("Scene added to database")
             else:
                 logger.error("Duplicate found, not adding")
-                raise Exception("Duplicate found, not adding")
 
     def read_scene(self, session: Session, scene_id: int) -> Scene:
         """

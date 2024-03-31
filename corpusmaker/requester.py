@@ -10,6 +10,8 @@ from openai import OpenAI
 @dataclass
 class Requester:
     client = OpenAI()
+    system_prompt: str
+    model: str
 
     def generate_summary(self, content: str) -> str:
         """
@@ -17,10 +19,10 @@ class Requester:
         """
         return str(
             self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model=self.model,
                 messages=[
-                    {"role": "system", "content": "system prompt"},
-                    {"role": "user", "content": "user prompt"},
+                    {"role": "system", "content": self.system_prompt},
+                    {"role": "user", "content": content},
                 ],
             )
             .choices[0]

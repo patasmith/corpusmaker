@@ -39,9 +39,12 @@ class Loader:
         if raw_text:
             session = Session(self.db.engine)
             self.db.create_raw_text(session, raw_text)
+            logger.info(f"Loaded {filename}")
 
     def import_files(
         self, filenames: list[str], separator: str = "", use_regex: bool = False
     ) -> None:
+        regex = (use_regex and "regex") or ""
+        logger.info(f"Reading files with {regex} separator: {separator}")
         for filename in filenames:
             self.import_file(filename, separator, use_regex)
