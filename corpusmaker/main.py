@@ -2,5 +2,5 @@ from corpusmaker.cli import Cli
 from jsonargparse import CLI
 
 
-def run():
+def run() -> None:
     CLI(Cli)

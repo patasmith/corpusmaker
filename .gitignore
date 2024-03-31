@@ -17,3 +17,6 @@ venv/
 
 # notes
 *.org
+
+# data
+data/

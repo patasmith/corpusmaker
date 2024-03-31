@@ -11,11 +11,12 @@ from corpusmaker.requester import Requester
 from loguru import logger
 from sqlmodel import Session, select, not_, col
 from datetime import datetime
+from pathlib import Path
 
 
 @dataclass
 class Cli:
-    db_file: str = "data/corpus.sqlite3"
+    db_file: str = "sqlite:///data/corpus.sqlite3"
     db: Database = field(init=False)
 
     def __post_init__(self) -> None:
@@ -26,7 +27,10 @@ class Cli:
         self, filenames: list[str], separator: str = "", use_regex: bool = False
     ) -> None:
         loader = Loader(self.db)
-        loader.import_files(filenames, separator, use_regex)
+        filename_list = []
+        for filename in filenames:
+            filename_list.extend([str(f) for f in Path(".").glob(filename)])
+        loader.import_files(filename_list, separator, use_regex)
 
     def create_scenes(self, word_limit: int = 8000) -> None:
         with Session(self.db.engine) as session:
