@@ -9,7 +9,7 @@ from corpusmaker.loader import Loader
 from corpusmaker.model import RawText, Scene
 from corpusmaker.requester import Requester
 from loguru import logger
-from sqlmodel import Session, select
+from sqlmodel import Session, select, not_, col
 from datetime import datetime
 
 
@@ -30,12 +30,15 @@ class Cli:
 
     def create_scenes(self, word_limit: int = 8000) -> None:
         with Session(self.db.engine) as session:
-            statement = (
-                select(RawText).join(Scene, isouter=True).where(Scene.text_id == None)
+            statement = select(RawText).where(
+                not_(col(RawText.id).in_(select(Scene.text_id)))
             )
             results = session.execute(statement).all()
+
             for result in results:
-                self.db.create_scenes(session, result.id, word_limit)
+                self.db.create_scenes(
+                    session=session, text_id=result.RawText.id, word_limit=word_limit
+                )
 
     def summarize_scenes(
         self,

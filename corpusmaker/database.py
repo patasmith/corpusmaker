@@ -36,7 +36,6 @@ class Database:
             logger.info("Raw text added to database")
         else:
             logger.error("Duplicate found, not adding")
-            raise Exception("Duplicate found, not adding")
 
     def read_raw_text(self, session: Session, text_id: int) -> RawText:
         logger.info(f"Reading Text {text_id} from database")

@@ -39,8 +39,9 @@ def test_dont_add_duplicate_text_to_table(
     Duplicate text cannot be added to raw_text table
     """
     db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
+    db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
     with pytest.raises(Exception):
-        db_instance_empty.create_raw_text(session=session, raw_text=simple_raw_text)
+        db_instance_empty.read_raw_text(session=session, text_id=2)
 
 
 def test_change_separator_for_raw_text_entry(
