@@ -30,4 +30,9 @@ class Exporter:
     def export_pcps_to_jsonl(self, pcps: list[dict[str, str]]) -> None:
         with open(self.filename, "w") as f:
             for pcp in pcps:
-                f.write(self.convert_pcp_to_chat_completion_jsonline(pcp) + "\n")
+                f.write(
+                    self.convert_pcp_to_chat_completion_jsonline(pcp)
+                    .encode("unicode_escape")
+                    .decode("utf-8")
+                )
+                f.write("\n")
