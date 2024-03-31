@@ -1,6 +1,7 @@
 from typing import Generator
 from pytest_mock import MockerFixture
 
+import os
 import pytest
 from sqlmodel import Session
 from corpusmaker.database import Database
@@ -9,6 +10,7 @@ from corpusmaker.loader import Loader
 from corpusmaker.requester import Requester
 from corpusmaker.exporter import Exporter
 from corpusmaker.cli import Cli
+from loguru import logger
 
 
 @pytest.fixture
@@ -131,7 +133,7 @@ def db_instance_summaries(
 
 
 @pytest.fixture
-def exporter(scope: str = "session") -> Generator[Exporter, None, None]:
+def exporter(scope: str = "module") -> Generator[Exporter, None, None]:
     exporter = Exporter(
         system_prompt="mock system prompt", filename="tests/files/test_output.jsonl"
     )
@@ -139,6 +141,11 @@ def exporter(scope: str = "session") -> Generator[Exporter, None, None]:
 
 
 @pytest.fixture
-def cli(scope: str = "session") -> Generator[Cli, None, None]:
-    cli = Cli(db_file="sqlite://")
+def cli() -> Generator[Cli, None, None]:
+    filename = "tests/files/test.sqlite3"
+    cli = Cli(db_file="sqlite:///" + filename)
     yield cli
+    try:
+        os.remove(filename)
+    except FileNotFoundError:
+        logger.error(f"Can't delete missing file: {filename}")

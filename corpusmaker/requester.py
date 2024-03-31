@@ -3,7 +3,6 @@ API operations for Corpusmaker
 """
 
 from dataclasses import dataclass
-from corpusmaker.model import Scene
 from openai import OpenAI
 
 
