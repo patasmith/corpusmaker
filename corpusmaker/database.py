@@ -260,8 +260,8 @@ class Database:
         scenes = self.find_scenes_with_summaries(session)
         pcps = [
             {
-                "prompt": scene.summary,#.encode("unicode_escape").decode("utf-8-sig"),
-                "completion": scene.content#.encode("unicode_escape").decode("utf-8-sig"),
+                "prompt": scene.summary,  # .encode("unicode_escape").decode("utf-8-sig"),
+                "completion": scene.content,  # .encode("unicode_escape").decode("utf-8-sig"),
             }
             for scene in scenes
         ]
