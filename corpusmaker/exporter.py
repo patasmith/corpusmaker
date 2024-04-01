@@ -26,8 +26,21 @@ class Exporter:
         )
         return {"messages": [system_message, user_message, assistant_message]}
 
-    def export_pcps_to_jsonl(self, pcps: list[dict[str, str]]) -> None:
+    def convert_pcp_to_legacy_completion_jsonline(
+        self, pcp: dict[str, str]
+    ) -> dict[str, str]:
+        return {
+            "prompt": pcp["prompt"],
+            "completion": pcp["completion"].encode("unicode_escape").decode("utf-8"),
+        }
+
+    def export_pcps_to_jsonl(
+        self, pcps: list[dict[str, str]], chat: bool = True
+    ) -> None:
         with open(self.filename, "w", encoding="utf-8-sig") as f:
             for pcp in pcps:
-                json.dump(self.convert_pcp_to_chat_completion_jsonline(pcp), f)
+                if chat:
+                    json.dump(self.convert_pcp_to_chat_completion_jsonline(pcp), f)
+                else:
+                    json.dump(self.convert_pcp_to_legacy_completion_jsonline(pcp), f)
                 f.write("\n")

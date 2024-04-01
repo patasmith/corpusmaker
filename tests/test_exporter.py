@@ -14,6 +14,8 @@ def test_convert_pcp_to_jsonl(exporter: Exporter) -> None:
             {"role": "assistant", "content": "mock completion"},
         ]
     }
+    legacy_line = exporter.convert_pcp_to_legacy_completion_jsonline(pcp)
+    assert legacy_line == pcp
 
 
 def test_export_pcps_to_jsonl(
