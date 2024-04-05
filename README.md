@@ -15,7 +15,7 @@ Create a corpus for fine-tuning an OpenAI model.
 
 1. `git clone https://github.com/patasmith/corpusmaker.git`
 2. `poetry install`
-3. `corpusmaker -h` or `corpusmaker <subcommand> -h` to see commands
+3. `corpusmaker -h` or `corpusmaker <subcommand> -h` to see command help
 
 ## Caveats
 
