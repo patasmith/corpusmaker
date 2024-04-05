@@ -3,7 +3,7 @@ name = "corpusmaker"
 version = "0.1.0"
 description = "Input full text of stories, output JSONL for fine-tuning AI models"
 authors = ["Pat Smith <pat.a.smith.dev@gmail.com>"]
-license = ""
+license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
